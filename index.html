@@ -14,7 +14,13 @@
 
 <body>
   <div class="" id="app">
-    <slideshow-media v-bind:media-urls="imagesUrls" v-bind:media-index="currentMediaIndex"></slideshow-media>
+    <h1 v-if="hasErrorMsg !== null" class="white-text">
+      Something went wrong while retrieving images. =(
+      </br></br>
+      {{hasErrorMsg}}
+    </h1>
+    <h1 v-else-if="imagesUrls === null" class="white-text">Getting images from the web, please wait...</h1>
+    <slideshow-media v-else v-bind:media-urls="imagesUrls" v-bind:media-index="currentMediaIndex"></slideshow-media>
   </div>
 
   <script src="js/vue.js"></script>

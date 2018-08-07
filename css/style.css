@@ -3,6 +3,9 @@ body, #app {
     width: 100%;
     background-color: black;
 }
+.white-text{
+    color: white;
+}
 
 .media-component {
     position: fixed;
