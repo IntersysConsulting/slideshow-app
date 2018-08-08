@@ -1,6 +1,6 @@
 var GITHUB_TOKEN = 'Insert your Github Token here'
 var SLIDESHOW_TIME_DELAY = 5000
-
+var TIME_TO_UPDATE = 10800000// 3 hours
 
 Vue.component('slideshow-media', {
     template:`
@@ -113,6 +113,8 @@ var app = new Vue({
 
         this.getMediaUrls()
         this.startSlideshow(SLIDESHOW_TIME_DELAY)
+
+        setInterval(this.getMediaUrls, TIME_TO_UPDATE)// Keep updating the media content
     },
     beforeDestroy: function() {
         this.stopSlideshow()
