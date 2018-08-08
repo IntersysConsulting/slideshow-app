@@ -1,11 +1,12 @@
-var GITHUB_TOKEN = 'Insert your Github Token here';
+var GITHUB_TOKEN = 'Insert your Github Token here'
+var SLIDESHOW_TIME_DELAY = 5000
 
 
 Vue.component('slideshow-media', {
     template:`
         <img v-if="mediaUrl !== null" v-bind:src="mediaUrl" class="media-component"/>
         <div v-else>
-            <h1 class="white-text">No images available</h1>
+            <h1>No images available</h1>
         </div> 
     `,
     props: ['mediaIndex', 'mediaUrls'],
@@ -20,6 +21,77 @@ Vue.component('slideshow-media', {
     }
 })
 
+Vue.component('delay-config', {
+    template:`
+        <h1 v-if="show" class="ui-text">{{ text }}</h1>
+    `,
+    data: function() {
+        return {
+            show: false,
+            overlayTimer: null,
+            timeDelay: SLIDESHOW_TIME_DELAY
+        }
+    },
+    created: function() {
+        document.addEventListener('keydown', this.onKeydownHandler)
+    },
+    methods: {
+        onKeydownHandler: function(e) {
+            switch(e.keyCode){
+                case 38: //UP arrow
+                    if (this.show) {
+                        this.showOverlay()
+                        this.setTimeDelay(SLIDESHOW_TIME_DELAY + 1000)
+                    }
+                    else {
+                        this.showOverlay()                    
+                    }
+                    break
+                case 40: //DOWN arrow
+                    if (this.show) {
+                        this.showOverlay()
+                        this.setTimeDelay(SLIDESHOW_TIME_DELAY - 1000)
+                    }
+                    else {
+                        this.showOverlay()                    
+                    }
+                    break
+                case 13: //OK button
+                    break
+                case 10009: //RETURN button
+                    tizen.application.getCurrentApplication().exit()
+                    break
+            }
+        },
+        showOverlay: function() {
+            
+            if (this.overlayTimer) {
+                clearTimeout(this.overlayTimer)
+            }
+            
+            this.show = true
+            this.overlayTimer = setTimeout(() => {
+                this.show = false
+                this.overlayTimer = null
+            }, 4000)
+        },
+        setTimeDelay: function(newVal) {
+            if (newVal < 1000) {
+                newVal = 1000
+            }
+
+            SLIDESHOW_TIME_DELAY = newVal
+            this.timeDelay = SLIDESHOW_TIME_DELAY
+            this.$emit('time-delay-changed', SLIDESHOW_TIME_DELAY)
+        }
+    },
+    computed: {
+        text: function() {
+            return (this.timeDelay / 1000) + ' seconds of delay'
+        }
+    }
+})
+
 
 var app = new Vue({
     el: '#app',
@@ -30,19 +102,38 @@ var app = new Vue({
         hasErrorMsg: null,
         slideShowTimer: null
     },
-    created: function () { 
+    created: function() {
+        document.addEventListener('visibilitychange', () => {
+            if(document.hidden){
+                this.onAppHideOrExitHandler()
+            } else {
+                this.onAppResumeHandler()
+            }
+        })
+
         this.getMediaUrls()
-        this.startSlideshow()
+        this.startSlideshow(SLIDESHOW_TIME_DELAY)
     },
     beforeDestroy: function() {
         this.stopSlideshow()
     },
     methods: {
-        stopSlideshow: function () {
+        onTimeDelayChangeHandler: function(newTimeDelay) {
+            this.stopSlideshow()
+            this.startSlideshow(newTimeDelay)
+        },
+        onAppHideOrExitHandler: function() {
+            this.stopSlideshow()
+        },
+        onAppResumeHandler: function() {
+            this.getMediaUrls()
+            this.startSlideshow(SLIDESHOW_TIME_DELAY)
+        },
+        stopSlideshow: function() {
             clearInterval(this.slideShowTimer)
             this.slideShowTimer = null
         },
-        startSlideshow: function() {
+        startSlideshow: function(timeDelay) {
             this.slideShowTimer = setInterval(() => {
                 var newIndex = this.currentMediaIndex + 1
 
@@ -51,12 +142,12 @@ var app = new Vue({
                 }
 
                 this.currentMediaIndex = newIndex
-            }, 5000)
+            }, timeDelay)
         },
         getMediaUrls: function() {
             var headers = new Headers({
                 Authorization: 'token' + GITHUB_TOKEN
-            });
+            })
             fetch(
                 'https://api.github.com/repos/IntersysConsulting/slideshow-app/contents/media',
                 { 
