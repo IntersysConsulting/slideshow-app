@@ -1,12 +1,12 @@
 # Slideshow App for Samsung TVs
-Simple Slideshow app for Samsung TVs (Tizen 3.0). Currently only works for images, but should be possible to add also video support.
+A simple Slideshow app for Samsung TVs (Tizen 3.0). Currently only works for images, but should be possible to add also video support.
 
 The images are pulled from this very repository.
 
 # Want to add new images?
 Simply add some images to the [media folder](https://github.com/IntersysConsulting/slideshow-app/tree/master/media) of this repository.
 
-## If you're new adding files to a Github repo, folllow these steps
+## If you're new adding files to a Github repo, follow these steps
 1. Open the [media folder](https://github.com/IntersysConsulting/slideshow-app/tree/master/media).
 2. Then click on the `Upload files` button *(see image below for reference)*
 ![Upload files](/images/step1.png)
